@@ -59,6 +59,7 @@ export const machineFields = (t: Dict): Field[] => [
   { name: "price_egp", label: t.machinery.price, type: "number" },
   { name: "negotiable", label: t.machinery.negotiable, type: "checkbox" },
   { name: "description", label: t.machinery.description, type: "textarea" },
+  { name: "photos", label: t.machinery.photos, type: "photos", hint: t.machinery.photosHint },
   { name: "seller_name", label: t.machinery.sellerName },
   { name: "phone", label: t.common.phone, type: "tel", required: true, dir: "ltr" },
   { name: "email", label: t.common.email, type: "email", dir: "ltr" },

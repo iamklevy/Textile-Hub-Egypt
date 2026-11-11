@@ -1,7 +1,9 @@
+import Image from "next/image";
 import { Card, Tag } from "@/components/ui";
 import { companyName, formatDate, formatNumber } from "@/lib/format";
 import type { Dict, Locale } from "@/lib/i18n";
 import { label } from "@/lib/i18n";
+import { photoUrls } from "@/lib/photos";
 import type { Company, Job, Machine } from "@/lib/types";
 
 type Base = { lang: Locale; t: Dict };
@@ -61,8 +63,20 @@ export function JobCard({ j, lang, t }: Base & { j: Job }) {
 }
 
 export function MachineCard({ m, lang, t }: Base & { m: Machine }) {
+  const cover = photoUrls(m.photos)[0];
   return (
     <Card href={`/${lang}/machinery/${m.id}`}>
+      {cover && (
+        <div className="relative -mx-5 -mt-5 mb-4 aspect-[4/3] overflow-hidden rounded-t-xl bg-sand">
+          <Image
+            src={cover}
+            alt={t.machinery.photoAlt}
+            fill
+            sizes="(min-width: 1024px) 360px, (min-width: 768px) 50vw, 100vw"
+            className="object-cover"
+          />
+        </div>
+      )}
       <div className="flex flex-wrap items-center gap-2">
         <Tag tone="thread">{label(t.machineCategories, m.category)}</Tag>
         <Tag>{label(t.machineConditions, m.condition)}</Tag>

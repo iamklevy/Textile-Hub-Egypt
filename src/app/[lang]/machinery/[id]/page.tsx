@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { submitInquiry } from "@/app/actions";
 import { priceText } from "@/components/cards";
@@ -8,12 +9,14 @@ import { formLabels, inquiryFields } from "@/lib/fields";
 import { formatDate } from "@/lib/format";
 import { label } from "@/lib/i18n";
 import { locale, type IdParams } from "@/lib/page";
+import { photoUrls } from "@/lib/photos";
 
 export default async function MachinePage({ params }: IdParams) {
   const { lang: rawLang, id } = await params;
   const { lang, t } = locale(rawLang);
   const m = await getMachine(id);
   if (!m) notFound();
+  const photos = photoUrls(m.photos);
 
   return (
     <>
@@ -31,6 +34,30 @@ export default async function MachinePage({ params }: IdParams) {
               <span className="text-base font-normal text-muted"> · {t.common.negotiable}</span>
             ) : null}
           </p>
+          {photos.length > 0 && (
+            <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {photos.map((src, i) => (
+                <a
+                  key={src}
+                  href={src}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`relative block overflow-hidden rounded-lg bg-sand ${
+                    i === 0 ? "col-span-2 aspect-[4/3] sm:col-span-3 sm:aspect-[16/9]" : "aspect-square"
+                  }`}
+                >
+                  <Image
+                    src={src}
+                    alt={`${t.machinery.photoAlt} ${i + 1}`}
+                    fill
+                    priority={i === 0}
+                    sizes={i === 0 ? "(min-width: 1024px) 720px, 100vw" : "(min-width: 640px) 240px, 50vw"}
+                    className="object-cover"
+                  />
+                </a>
+              ))}
+            </div>
+          )}
           {m.description && <p className="mt-5 whitespace-pre-line [unicode-bidi:plaintext] rtl:text-right">{m.description}</p>}
           <Facts
             rows={[

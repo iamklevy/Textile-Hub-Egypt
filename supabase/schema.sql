@@ -63,8 +63,12 @@ create table if not exists public.machines (
   description text,
   seller_name text,
   phone text,
-  email text
+  email text,
+  photos text[] not null default '{}'
 );
+
+-- Added after the first version; safe to run again on an existing database.
+alter table public.machines add column if not exists photos text[] not null default '{}';
 
 -- ---------------------------------------------------------------- inquiries
 -- Messages from visitors: contact a company, apply for a job, ask about a
@@ -96,7 +100,8 @@ create index if not exists machines_live_idx on public.machines (status, created
 --   * anyone can READ listings you have approved
 --   * anyone can SUBMIT a listing, but only as 'pending' (and never verified)
 --   * anyone can SEND an inquiry, but nobody can read inquiries from the site
--- You review everything in the Supabase Table Editor, which bypasses RLS.
+--   * signed-in users listed in public.admins can see and moderate everything
+--     (the /admin page); see the "admins" section at the end of this file
 
 alter table public.companies enable row level security;
 alter table public.jobs enable row level security;
@@ -130,3 +135,76 @@ create policy "send inquiries" on public.inquiries
 
 grant select, insert on public.companies, public.jobs, public.machines to anon, authenticated;
 grant insert on public.inquiries to anon, authenticated;
+
+-- ------------------------------------------------------------------- admins
+-- Accounts allowed to use the /admin page. Create the user in Supabase under
+-- Authentication > Users, then add them here (see README):
+--   insert into public.admins (user_id)
+--   select id from auth.users where email = 'you@example.com';
+create table if not exists public.admins (
+  user_id uuid primary key references auth.users (id) on delete cascade,
+  created_at timestamptz not null default now()
+);
+alter table public.admins enable row level security;
+-- No policies on purpose: the table is not readable or writable through the API.
+
+create or replace function public.is_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select exists (select 1 from public.admins where user_id = (select auth.uid()));
+$$;
+revoke execute on function public.is_admin() from public;
+grant execute on function public.is_admin() to anon, authenticated;
+
+drop policy if exists "admins read companies" on public.companies;
+create policy "admins read companies" on public.companies
+  for select to authenticated using ((select public.is_admin()));
+drop policy if exists "admins update companies" on public.companies;
+create policy "admins update companies" on public.companies
+  for update to authenticated using ((select public.is_admin())) with check ((select public.is_admin()));
+
+drop policy if exists "admins read jobs" on public.jobs;
+create policy "admins read jobs" on public.jobs
+  for select to authenticated using ((select public.is_admin()));
+drop policy if exists "admins update jobs" on public.jobs;
+create policy "admins update jobs" on public.jobs
+  for update to authenticated using ((select public.is_admin())) with check ((select public.is_admin()));
+
+drop policy if exists "admins read machines" on public.machines;
+create policy "admins read machines" on public.machines
+  for select to authenticated using ((select public.is_admin()));
+drop policy if exists "admins update machines" on public.machines;
+create policy "admins update machines" on public.machines
+  for update to authenticated using ((select public.is_admin())) with check ((select public.is_admin()));
+
+drop policy if exists "admins read inquiries" on public.inquiries;
+create policy "admins read inquiries" on public.inquiries
+  for select to authenticated using ((select public.is_admin()));
+drop policy if exists "admins update inquiries" on public.inquiries;
+create policy "admins update inquiries" on public.inquiries
+  for update to authenticated using ((select public.is_admin())) with check ((select public.is_admin()));
+
+grant update on public.companies, public.jobs, public.machines to authenticated;
+grant select, update on public.inquiries to authenticated;
+
+-- ----------------------------------------------------------- machine photos
+-- Public bucket: approved listings show their photos to everyone. Uploads are
+-- limited to images under 2 MB; the website resizes them before sending.
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('machine-photos', 'machine-photos', true, 2097152,
+        array['image/jpeg', 'image/png', 'image/webp'])
+on conflict (id) do update
+  set public = excluded.public,
+      file_size_limit = excluded.file_size_limit,
+      allowed_mime_types = excluded.allowed_mime_types;
+
+drop policy if exists "upload machine photos" on storage.objects;
+create policy "upload machine photos" on storage.objects
+  for insert to anon, authenticated with check (bucket_id = 'machine-photos');
+drop policy if exists "admins delete machine photos" on storage.objects;
+create policy "admins delete machine photos" on storage.objects
+  for delete to authenticated using (bucket_id = 'machine-photos' and (select public.is_admin()));

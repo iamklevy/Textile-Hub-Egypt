@@ -53,6 +53,27 @@ export type Machine = {
   seller_name: string | null;
   phone: string | null;
   email: string | null;
+  /** Storage paths in the machine-photos bucket; see lib/photos.ts. */
+  photos?: string[] | null;
+};
+
+export type ListingStatus = "pending" | "approved" | "rejected";
+
+export type Inquiry = {
+  id: string;
+  created_at: string;
+  kind: string;
+  target_id: string | null;
+  target_label: string | null;
+  name: string;
+  company: string | null;
+  phone: string | null;
+  email: string | null;
+  wechat: string | null;
+  interests: string[];
+  message: string | null;
+  locale: string | null;
+  handled: boolean;
 };
 
 export type Filters = { q?: string; category?: string; city?: string };

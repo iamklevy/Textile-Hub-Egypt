@@ -12,6 +12,7 @@ import {
   machineConditions,
   openToOptions,
 } from "@/lib/options";
+import { MAX_PHOTO_BYTES, MAX_PHOTOS, PHOTO_BUCKET, PHOTO_TYPES } from "@/lib/photos";
 import type { FormState } from "@/lib/types";
 
 const text = (fd: FormData, key: string, max = 2000) => {
@@ -106,7 +107,18 @@ export async function submitJob(_prev: FormState, fd: FormData): Promise<FormSta
   return insert("jobs", row, fd, "listingSaved");
 }
 
+/** Uploaded photo files from the form, or null if any of them is not allowed. */
+function readPhotos(fd: FormData): File[] | null {
+  const files = fd
+    .getAll("photos")
+    .filter((v): v is File => v instanceof File && v.size > 0);
+  if (files.length > MAX_PHOTOS) return null;
+  if (files.some((f) => !PHOTO_TYPES[f.type] || f.size > MAX_PHOTO_BYTES)) return null;
+  return files;
+}
+
 export async function submitMachine(_prev: FormState, fd: FormData): Promise<FormState> {
+  const t = dictFor(fd).form;
   const row = {
     title: text(fd, "title", 160),
     category: oneOf(fd, "category", machineCategories),
@@ -123,8 +135,36 @@ export async function submitMachine(_prev: FormState, fd: FormData): Promise<For
     email: text(fd, "email", 160),
   };
   if (!row.title || !row.category || !row.condition || !row.city || !row.phone)
-    return { ok: false, message: dictFor(fd).form.required };
-  return insert("machines", row, fd, "listingSaved");
+    return { ok: false, message: t.required };
+  const photos = readPhotos(fd);
+  if (!photos) return { ok: false, message: t.photoError };
+  if (isBot(fd)) return { ok: true, message: t.listingSaved };
+
+  const supabase = getSupabase();
+  if (!supabase) return { ok: true, message: t.demoSaved };
+
+  // The id is chosen here so photos can be stored under it before the row
+  // exists; visitors cannot read pending rows back after inserting them.
+  const id = crypto.randomUUID();
+  const paths: string[] = [];
+  for (const [i, file] of photos.entries()) {
+    const path = `${id}/${i + 1}.${PHOTO_TYPES[file.type]}`;
+    const { error } = await supabase.storage
+      .from(PHOTO_BUCKET)
+      .upload(path, file, { contentType: file.type, upsert: false });
+    if (error) {
+      console.error("[actions] photo upload failed:", error.message);
+      return { ok: false, message: t.error };
+    }
+    paths.push(path);
+  }
+
+  const { error } = await supabase.from("machines").insert({ id, ...row, photos: paths });
+  if (error) {
+    console.error("[actions] insert into machines failed:", error.message);
+    return { ok: false, message: t.error };
+  }
+  return { ok: true, message: t.listingSaved };
 }
 
 export async function submitInquiry(_prev: FormState, fd: FormData): Promise<FormState> {
