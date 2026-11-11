@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #16233a;
+  --color-ink-soft: #2b3a55;
+  --color-paper: #f8f5ef;
+  --color-card: #ffffff;
+  --color-line: #e4ddd0;
+  --color-muted: #5d6878;
+  --color-thread: #b8402a;
+  --color-thread-dark: #96321f;
+  --color-nile: #1c6b66;
+  --color-nile-soft: #e3f1ef;
+  --color-sand: #efe7d8;
+  --font-sans: "Segoe UI", system-ui, -apple-system, "Noto Sans", "Noto Sans Arabic",
+    "Tahoma", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+/* Woven stripe used under the header and on the hero. */
+.weave {
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--color-thread) 0 18px,
+    var(--color-ink) 18px 36px,
+    var(--color-nile) 36px 54px,
+    var(--color-sand) 54px 72px
+  );
+}
+
+.field {
+  width: 100%;
+  border: 1px solid var(--color-line);
+  background: #fff;
+  border-radius: 0.5rem;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.95rem;
+  color: var(--color-ink);
+}
+.field:focus {
+  outline: 2px solid var(--color-nile);
+  outline-offset: 1px;
+}
