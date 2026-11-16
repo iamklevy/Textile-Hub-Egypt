@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState, type ChangeEvent } from "react";
+import { CheckIcon } from "@/components/icons";
 import { MAX_PHOTOS } from "@/lib/photos";
 import type { FormState } from "@/lib/types";
 
@@ -88,7 +89,7 @@ function PhotoInput({ f }: { f: Field }) {
 
   return (
     <div className="md:col-span-2">
-      <label htmlFor={`f-${f.name}`} className="mb-1 block text-sm font-medium">
+      <label htmlFor={`f-${f.name}`} className="mb-1.5 block text-sm font-medium">
         {f.label}
       </label>
       <input
@@ -99,9 +100,9 @@ function PhotoInput({ f }: { f: Field }) {
         accept="image/jpeg,image/png,image/webp"
         multiple
         onChange={onChange}
-        className="field file:me-3 file:rounded-full file:border-0 file:bg-sand file:px-3 file:py-1 file:text-sm"
+        className="field file:me-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-sand file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-ink"
       />
-      {f.hint && <p className="mt-1 text-xs text-muted">{f.hint}</p>}
+      {f.hint && <p className="mt-1.5 text-xs text-muted">{f.hint}</p>}
       {previews.length > 0 && (
         <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-6">
           {previews.map((src) => (
@@ -122,7 +123,7 @@ function FieldInput({ f, labels }: { f: Field; labels: FormLabels }) {
 
   if (f.type === "checkbox") {
     return (
-      <label className="flex items-center gap-2 text-sm md:col-span-2">
+      <label className="flex cursor-pointer items-center gap-2.5 text-sm md:col-span-2">
         <input type="checkbox" name={f.name} className="h-4 w-4 accent-[var(--color-nile)]" />
         {f.label}
       </label>
@@ -132,10 +133,13 @@ function FieldInput({ f, labels }: { f: Field; labels: FormLabels }) {
   if (f.type === "checkboxes") {
     return (
       <fieldset className="md:col-span-2">
-        <legend className="mb-2 text-sm font-medium">{f.label}</legend>
-        <div className="flex flex-wrap gap-x-5 gap-y-2">
+        <legend className="mb-2.5 text-sm font-medium">{f.label}</legend>
+        <div className="flex flex-wrap gap-2">
           {f.options?.map((o) => (
-            <label key={o.value} className="flex items-center gap-2 text-sm">
+            <label
+              key={o.value}
+              className="flex cursor-pointer items-center gap-2 rounded-lg border border-line-strong bg-white px-3 py-2 text-sm transition-colors hover:border-ink-soft has-[:checked]:border-nile has-[:checked]:bg-nile-soft has-[:checked]:text-nile"
+            >
               <input
                 type="checkbox"
                 name={f.name}
@@ -151,7 +155,7 @@ function FieldInput({ f, labels }: { f: Field; labels: FormLabels }) {
   }
 
   const labelEl = (
-    <label htmlFor={id} className="mb-1 block text-sm font-medium">
+    <label htmlFor={id} className="mb-1.5 block text-sm font-medium">
       {f.label}
       {f.required ? (
         <span className="text-thread"> *</span>
@@ -208,14 +212,17 @@ export function ActionForm({
 
   if (state?.ok) {
     return (
-      <p role="status" className="rounded-xl border border-nile/30 bg-nile-soft p-5 font-medium text-nile">
-        {state.message}
-      </p>
+      <div role="status" className="flex items-start gap-3 rounded-xl border border-nile/25 bg-nile-soft p-5 text-nile">
+        <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-nile text-white">
+          <CheckIcon className="h-3.5 w-3.5" />
+        </span>
+        <p className="font-medium leading-relaxed">{state.message}</p>
+      </div>
     );
   }
 
   return (
-    <form action={formAction} className="grid gap-4 md:grid-cols-2">
+    <form action={formAction} className="grid gap-x-4 gap-y-5 md:grid-cols-2">
       {Object.entries(hidden).map(([k, v]) => (
         <input key={k} type="hidden" name={k} value={v} />
       ))}
@@ -232,15 +239,12 @@ export function ActionForm({
         <FieldInput key={f.name} f={f} labels={labels} />
       ))}
       {state && !state.ok && (
-        <p role="alert" className="text-sm font-medium text-thread md:col-span-2">
+        <p role="alert" className="rounded-lg bg-thread/10 px-3.5 py-2.5 text-sm font-medium text-thread-dark md:col-span-2">
           {state.message}
         </p>
       )}
-      <div className="flex flex-wrap items-center gap-4 md:col-span-2">
-        <button
-          disabled={pending}
-          className="rounded-full bg-thread px-6 py-2.5 text-sm font-semibold text-white hover:bg-thread-dark disabled:opacity-60"
-        >
+      <div className="flex flex-wrap items-center gap-4 pt-1 md:col-span-2">
+        <button disabled={pending} className="btn btn-primary">
           {pending ? labels.sending : labels.submit}
         </button>
         {labels.note && <span className="text-sm text-muted">{labels.note}</span>}

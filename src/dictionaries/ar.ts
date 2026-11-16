@@ -15,6 +15,10 @@ export const ar: Dict = {
     jobs: "الوظائف",
     machinery: "ماكينات مستعملة",
     investors: "للمستثمرين الصينيين",
+    menu: "القائمة",
+    close: "إغلاق القائمة",
+    browse: "تصفح",
+    getListed: "أضف إعلانك",
   },
   home: {
     heroTitle: "ابدأ، شارك وأنتج في صناعة النسيج المصرية",
@@ -69,6 +73,7 @@ export const ar: Dict = {
     optional: "اختياري",
     select: "اختر",
     viewAll: "عرض الكل",
+    clear: "مسح التصفية",
   },
   form: {
     submit: "إرسال للمراجعة",

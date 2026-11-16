@@ -1,6 +1,6 @@
 import { submitJob } from "@/app/actions";
 import { ActionForm } from "@/components/forms";
-import { BackLink } from "@/components/ui";
+import { BackLink, Page } from "@/components/ui";
 import { jobFields, formLabels } from "@/lib/fields";
 import { locale, type LangParams } from "@/lib/page";
 
@@ -8,10 +8,10 @@ export default async function NewListingPage({ params }: LangParams) {
   const { lang, t } = locale((await params).lang);
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <Page narrow="md">
       <BackLink href={`/${lang}/jobs`} t={t} />
-      <h1 className="mt-4 text-3xl font-bold">{t.jobs.addTitle}</h1>
-      <div className="mt-6 rounded-xl border border-line bg-white p-6">
+      <h1 className="display mt-5 text-3xl md:text-4xl">{t.jobs.addTitle}</h1>
+      <div className="panel mt-8 p-6 md:p-8">
         <ActionForm
           action={submitJob}
           fields={jobFields(t)}
@@ -19,6 +19,6 @@ export default async function NewListingPage({ params }: LangParams) {
           hidden={{ locale: lang }}
         />
       </div>
-    </div>
+    </Page>
   );
 }

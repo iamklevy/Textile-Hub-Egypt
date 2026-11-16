@@ -3,6 +3,9 @@ import type { NextConfig } from "next";
 // Cache Components are switched off on purpose: every listing page reads live
 // data from Supabase on each request, which is the simplest model for an MVP.
 const nextConfig: NextConfig = {
+  // Lets a phone on the same Wi-Fi open the dev server by this PC's address.
+  // Dev only; update it if the router hands this PC a different address.
+  allowedDevOrigins: ["192.168.1.161"],
   turbopack: {
     rules: {
       "*.css": {

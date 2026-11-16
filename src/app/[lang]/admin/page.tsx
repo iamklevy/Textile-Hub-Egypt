@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import { setHandled, setStatus, setVerified, signOut } from "@/app/admin-actions";
 import { priceText, salaryText } from "@/components/cards";
-import { Facts, Tag } from "@/components/ui";
+import { Facts, Page, Tag, VerifiedTag } from "@/components/ui";
 import { adminTabs, getAdminSession, statuses, type AdminTab } from "@/lib/admin";
 import { first, formatDate } from "@/lib/format";
 import { label, type Dict, type Locale } from "@/lib/i18n";
@@ -31,11 +31,17 @@ export default async function AdminPage({ params, searchParams }: ListProps) {
   if (session.state === "signed-out") redirect(`/${lang}/admin/login`);
   if (session.state === "demo" || session.state === "not-admin") {
     return (
-      <div className="mx-auto max-w-xl rounded-xl border border-line bg-white p-6">
-        <h1 className="text-2xl font-bold">{a.title}</h1>
-        <p className="mt-3 text-muted">{session.state === "demo" ? a.demoNote : a.notAdmin}</p>
-        {session.state === "not-admin" && <SignOut lang={lang} label={a.signOut} />}
-      </div>
+      <Page narrow="md">
+        <div className="panel p-6 md:p-8">
+          <h1 className="display text-2xl">{a.title}</h1>
+          <p className="mt-3 text-muted">{session.state === "demo" ? a.demoNote : a.notAdmin}</p>
+          {session.state === "not-admin" && (
+            <div className="mt-5">
+              <SignOut lang={lang} label={a.signOut} />
+            </div>
+          )}
+        </div>
+      </Page>
     );
   }
 
@@ -79,9 +85,9 @@ export default async function AdminPage({ params, searchParams }: ListProps) {
     : statuses.map((s) => [s, a[s]]);
 
   return (
-    <>
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-line pb-5">
-        <h1 className="text-3xl font-bold">{a.title}</h1>
+    <Page>
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-line pb-6">
+        <h1 className="display text-3xl md:text-4xl">{a.title}</h1>
         <div className="flex items-center gap-3 text-sm text-muted">
           <span dir="ltr">{session.email}</span>
           <SignOut lang={lang} label={a.signOut} />
@@ -94,13 +100,11 @@ export default async function AdminPage({ params, searchParams }: ListProps) {
             key={name}
             href={`/${lang}/admin?tab=${name}`}
             aria-current={name === tab ? "page" : undefined}
-            className={`rounded-full px-4 py-2 text-sm font-semibold ${
-              name === tab ? "bg-ink text-white" : "border border-line bg-white text-ink-soft hover:border-ink-soft"
-            }`}
+            className={`btn btn-sm ${name === tab ? "btn-dark" : "btn-outline"}`}
           >
             {tabLabel[name]}
             {counts[i] > 0 && (
-              <span className="ms-2 rounded-full bg-thread px-2 py-0.5 text-xs text-white">{counts[i]}</span>
+              <span className="rounded-md bg-thread px-1.5 py-0.5 text-xs leading-none text-white">{counts[i]}</span>
             )}
           </Link>
         ))}
@@ -120,7 +124,7 @@ export default async function AdminPage({ params, searchParams }: ListProps) {
       </nav>
 
       {rows.length === 0 ? (
-        <p className="mt-6 rounded-xl border border-dashed border-line bg-white p-10 text-center text-muted">
+        <p className="mt-6 rounded-2xl border border-dashed border-line-strong bg-white/60 px-6 py-16 text-center text-muted">
           {a.empty}
         </p>
       ) : (
@@ -140,7 +144,7 @@ export default async function AdminPage({ params, searchParams }: ListProps) {
           )}
         </div>
       )}
-    </>
+    </Page>
   );
 }
 
@@ -148,7 +152,7 @@ function SignOut({ lang, label: text }: { lang: string; label: string }) {
   return (
     <form action={signOut}>
       <input type="hidden" name="lang" value={lang} />
-      <button className="rounded-full border border-line bg-white px-4 py-1.5 text-sm font-medium text-ink hover:border-ink-soft">
+      <button className="btn btn-sm btn-outline">
         {text}
       </button>
     </form>
@@ -156,13 +160,9 @@ function SignOut({ lang, label: text }: { lang: string; label: string }) {
 }
 
 function Btn({ children, tone = "plain", ...rest }: { children: ReactNode; tone?: "plain" | "go" | "stop"; name?: string; value?: string }) {
-  const tones = {
-    plain: "border border-line bg-white text-ink hover:border-ink-soft",
-    go: "bg-nile text-white hover:opacity-90",
-    stop: "bg-thread text-white hover:bg-thread-dark",
-  };
+  const tones = { plain: "btn-outline", go: "btn-go", stop: "btn-primary" };
   return (
-    <button {...rest} className={`rounded-full px-4 py-1.5 text-sm font-semibold ${tones[tone]}`}>
+    <button {...rest} className={`btn btn-sm ${tones[tone]}`}>
       {children}
     </button>
   );
@@ -243,12 +243,12 @@ function ListingItem({
   ];
 
   return (
-    <article className="rounded-xl border border-line bg-white p-5">
+    <article className="panel p-6">
       <div className="flex flex-wrap items-center gap-2">
         <Tag tone={row.status === "approved" ? "nile" : row.status === "rejected" ? "thread" : "plain"}>
           {a[row.status]}
         </Tag>
-        {company?.verified && <Tag tone="nile">✓ {t.common.verified}</Tag>}
+        {company?.verified && <VerifiedTag t={t} />}
         <span className="text-xs text-muted">
           {a.submitted}: {formatDate(row.created_at, lang)}
         </span>
@@ -283,7 +283,7 @@ function ListingItem({
           <form action={setVerified}>
             <input type="hidden" name="id" value={company.id} />
             <input type="hidden" name="verified" value={String(!company.verified)} />
-            <Btn>{company.verified ? a.unverify : `✓ ${a.verify}`}</Btn>
+            <Btn>{company.verified ? a.unverify : a.verify}</Btn>
           </form>
         )}
         {row.status === "approved" && (
@@ -313,7 +313,7 @@ function InquiryItem({ q, lang, t }: { q: Inquiry; lang: Locale; t: Dict }) {
     );
 
   return (
-    <article className="rounded-xl border border-line bg-white p-5">
+    <article className="panel p-6">
       <div className="flex flex-wrap items-center gap-2">
         <Tag tone={q.kind === "investor" ? "thread" : "plain"}>{label(a.inquiryKinds, q.kind)}</Tag>
         {q.handled && <Tag tone="nile">{a.handled}</Tag>}

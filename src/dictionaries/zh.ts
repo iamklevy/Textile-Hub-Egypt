@@ -13,6 +13,10 @@ export const zh: Dict = {
     jobs: "招聘",
     machinery: "二手设备",
     investors: "中国投资者",
+    menu: "菜单",
+    close: "关闭菜单",
+    browse: "浏览",
+    getListed: "免费入驻",
   },
   home: {
     heroTitle: "落地埃及纺织业:找伙伴、建工厂、促生产",
@@ -61,6 +65,7 @@ export const zh: Dict = {
     optional: "选填",
     select: "请选择",
     viewAll: "查看全部",
+    clear: "清除筛选",
   },
   form: {
     submit: "提交审核",

@@ -78,7 +78,7 @@ export const investorFields = (t: Dict): Field[] => [
   { name: "company", label: t.form.yourCompany, required: true },
   { name: "email", label: t.form.yourEmail, type: "email", required: true, dir: "ltr" },
   { name: "wechat", label: t.form.yourWechat, dir: "ltr" },
-  { name: "phone", label: t.form.yourPhone, type: "tel", dir: "ltr" },
+  { name: "phone", label: t.form.yourPhone, type: "tel", dir: "ltr", wide: true },
   { name: "interests", label: t.investors.interest, type: "checkboxes", options: opts(investorInterests, t.investorInterests) },
   { name: "message", label: t.form.message, type: "textarea" },
 ];

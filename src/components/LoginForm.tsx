@@ -16,13 +16,13 @@ export function LoginForm({
     <form action={action} className="space-y-4">
       <input type="hidden" name="lang" value={lang} />
       <div>
-        <label htmlFor="admin-email" className="mb-1 block text-sm font-medium">
+        <label htmlFor="admin-email" className="mb-1.5 block text-sm font-medium">
           {labels.email}
         </label>
         <input id="admin-email" name="email" type="email" required autoComplete="username" dir="ltr" className="field" />
       </div>
       <div>
-        <label htmlFor="admin-password" className="mb-1 block text-sm font-medium">
+        <label htmlFor="admin-password" className="mb-1.5 block text-sm font-medium">
           {labels.password}
         </label>
         <input
@@ -42,7 +42,7 @@ export function LoginForm({
       )}
       <button
         disabled={pending}
-        className="w-full rounded-full bg-ink px-6 py-2.5 text-sm font-semibold text-white hover:bg-ink-soft disabled:opacity-60"
+        className="btn btn-dark w-full"
       >
         {pending ? labels.signingIn : labels.signIn}
       </button>

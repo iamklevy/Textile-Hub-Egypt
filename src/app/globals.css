@@ -1,48 +1,226 @@
 @import "tailwindcss";
 
+@theme inline {
+  --font-sans: var(--font-plex), var(--font-plex-arabic), "PingFang SC", "Microsoft YaHei",
+    "Noto Sans SC", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
 @theme {
-  --color-ink: #16233a;
-  --color-ink-soft: #2b3a55;
-  --color-paper: #f8f5ef;
+  --color-ink: #0e1a2b;
+  --color-ink-soft: #33415a;
+  --color-paper: #f9f7f3;
   --color-card: #ffffff;
-  --color-line: #e4ddd0;
-  --color-muted: #5d6878;
-  --color-thread: #b8402a;
-  --color-thread-dark: #96321f;
-  --color-nile: #1c6b66;
-  --color-nile-soft: #e3f1ef;
-  --color-sand: #efe7d8;
-  --font-sans: "Segoe UI", system-ui, -apple-system, "Noto Sans", "Noto Sans Arabic",
-    "Tahoma", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --color-line: #e6e1d7;
+  --color-line-strong: #d0c9bb;
+  --color-muted: #5f6877;
+  --color-thread: #b3412a;
+  --color-thread-dark: #8f3220;
+  --color-nile: #17645f;
+  --color-nile-soft: #e4f0ee;
+  --color-sand: #f0eade;
+
+  --shadow-card: 0 1px 2px rgb(14 26 43 / 0.04), 0 8px 24px -12px rgb(14 26 43 / 0.12);
+  --shadow-lift: 0 2px 4px rgb(14 26 43 / 0.05), 0 18px 40px -18px rgb(14 26 43 / 0.22);
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5.5rem;
 }
 
 body {
   background: var(--color-paper);
   color: var(--color-ink);
   font-family: var(--font-sans);
+  font-feature-settings: "tnum" 0;
+  text-rendering: optimizeLegibility;
 }
 
-/* Woven stripe used under the header and on the hero. */
-.weave {
-  background-image: repeating-linear-gradient(
-    90deg,
-    var(--color-thread) 0 18px,
-    var(--color-ink) 18px 36px,
-    var(--color-nile) 36px 54px,
-    var(--color-sand) 54px 72px
-  );
+/* Arabic text reads best in the Arabic cut, which also carries matching Latin. */
+:lang(ar) body {
+  font-family: var(--font-plex-arabic), var(--font-plex), system-ui, sans-serif;
 }
 
-.field {
-  width: 100%;
-  border: 1px solid var(--color-line);
-  background: #fff;
-  border-radius: 0.5rem;
-  padding: 0.55rem 0.75rem;
-  font-size: 0.95rem;
-  color: var(--color-ink);
+::selection {
+  background: var(--color-thread);
+  color: #fff;
 }
-.field:focus {
+
+:focus-visible {
   outline: 2px solid var(--color-nile);
-  outline-offset: 1px;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@layer components {
+  /* Letter-spacing breaks joined Arabic letters and crowds Chinese, so the
+     tracking in these two styles applies to Latin text only. */
+  .display {
+    font-weight: 600;
+    line-height: 1.08;
+    text-wrap: balance;
+  }
+  :lang(en) .display {
+    letter-spacing: -0.025em;
+  }
+  :lang(ar) .display,
+  :lang(zh-Hans) .display {
+    line-height: 1.3;
+  }
+
+  .eyebrow {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--color-thread);
+  }
+  :lang(en) .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 0.72rem;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 0.625rem;
+    border: 1px solid transparent;
+    padding: 0.7rem 1.15rem;
+    font-size: 0.925rem;
+    font-weight: 600;
+    line-height: 1.25;
+    text-align: center;
+    cursor: pointer;
+    transition:
+      background-color 0.15s ease,
+      border-color 0.15s ease,
+      color 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+  .btn:disabled {
+    opacity: 0.6;
+    cursor: progress;
+  }
+  .btn-sm {
+    padding: 0.45rem 0.85rem;
+    font-size: 0.85rem;
+    border-radius: 0.5rem;
+  }
+  .btn-primary {
+    background: var(--color-thread);
+    color: #fff;
+  }
+  .btn-primary:hover {
+    background: var(--color-thread-dark);
+  }
+  .btn-dark {
+    background: var(--color-ink);
+    color: #fff;
+  }
+  .btn-dark:hover {
+    background: var(--color-ink-soft);
+  }
+  .btn-go {
+    background: var(--color-nile);
+    color: #fff;
+  }
+  .btn-go:hover {
+    background: #0f4f4b;
+  }
+  .btn-outline {
+    background: #fff;
+    border-color: var(--color-line-strong);
+    color: var(--color-ink);
+  }
+  .btn-outline:hover {
+    border-color: var(--color-ink);
+  }
+  .btn-on-dark {
+    border-color: rgb(255 255 255 / 0.28);
+    color: #fff;
+  }
+  .btn-on-dark:hover {
+    background: rgb(255 255 255 / 0.1);
+    border-color: rgb(255 255 255 / 0.5);
+  }
+
+  .panel {
+    border: 1px solid var(--color-line);
+    background: var(--color-card);
+    border-radius: 1rem;
+    box-shadow: var(--shadow-card);
+  }
+
+  .field {
+    width: 100%;
+    min-height: 2.75rem;
+    border: 1px solid var(--color-line-strong);
+    background: #fff;
+    border-radius: 0.625rem;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.95rem;
+    color: var(--color-ink);
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+  .field::placeholder {
+    color: #8b93a0;
+  }
+  .field:hover {
+    border-color: #b3ab9a;
+  }
+  .field:focus {
+    outline: none;
+    border-color: var(--color-nile);
+    box-shadow: 0 0 0 3px rgb(23 100 95 / 0.16);
+  }
+
+  /* Plain-weave texture: short over-under strokes, like warp crossing weft. */
+  .weave-dark {
+    position: relative;
+    isolation: isolate;
+    background:
+      radial-gradient(70% 90% at 100% 0%, rgb(23 100 95 / 0.35), transparent 70%),
+      var(--color-ink);
+  }
+  [dir="rtl"] .weave-dark {
+    background:
+      radial-gradient(70% 90% at 0% 0%, rgb(23 100 95 / 0.35), transparent 70%),
+      var(--color-ink);
+  }
+  .weave-dark::before,
+  .weave-light::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-size: 24px 24px;
+  }
+  .weave-dark::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='none' stroke='%23fff' stroke-opacity='.11' stroke-width='1.5' stroke-linecap='round'%3E%3Cpath d='M2 6h8M14 18h8M18 2v8M6 14v8'/%3E%3C/svg%3E");
+    mask-image: linear-gradient(to left, #000, transparent 70%);
+  }
+  [dir="rtl"] .weave-dark::before {
+    mask-image: linear-gradient(to right, #000, transparent 70%);
+  }
+  .weave-light {
+    position: relative;
+    isolation: isolate;
+    background: var(--color-sand);
+  }
+  .weave-light::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='none' stroke='%230e1a2b' stroke-opacity='.08' stroke-width='1.5' stroke-linecap='round'%3E%3Cpath d='M2 6h8M14 18h8M18 2v8M6 14v8'/%3E%3C/svg%3E");
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  * {
+    transition-duration: 0.01ms !important;
+  }
 }

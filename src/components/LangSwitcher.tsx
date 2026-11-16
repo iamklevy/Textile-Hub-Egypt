@@ -10,13 +10,15 @@ export function LangSwitcher({ current }: { current: string }) {
   const rest = pathname.split("/").slice(2).join("/");
 
   return (
-    <div className="flex items-center gap-1 rounded-full border border-line bg-white p-1 text-sm">
+    <div className="flex items-center gap-0.5 rounded-lg border border-line bg-white p-1 text-sm">
       {(Object.keys(names) as (keyof typeof names)[]).map((l) => (
         <Link
           key={l}
           href={`/${l}${rest ? `/${rest}` : ""}`}
           hrefLang={l}
-          className={`rounded-full px-2.5 py-1 leading-none ${
+          lang={l}
+          aria-current={l === current ? "true" : undefined}
+          className={`rounded-md px-2.5 py-1.5 font-medium leading-none transition-colors ${
             l === current ? "bg-ink text-white" : "text-muted hover:text-ink"
           }`}
         >

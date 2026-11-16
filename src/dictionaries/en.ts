@@ -13,6 +13,10 @@ export const en = {
     jobs: "Jobs",
     machinery: "Used machinery",
     investors: "For Chinese investors",
+    menu: "Menu",
+    close: "Close menu",
+    browse: "Browse",
+    getListed: "Get listed",
   },
   home: {
     heroTitle: "Land, partner and produce in Egypt's textile industry",
@@ -67,6 +71,7 @@ export const en = {
     optional: "optional",
     select: "Select",
     viewAll: "View all",
+    clear: "Clear filters",
   },
   form: {
     submit: "Submit for review",

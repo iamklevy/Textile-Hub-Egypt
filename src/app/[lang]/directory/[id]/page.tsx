@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
 import { submitInquiry } from "@/app/actions";
+import { Monogram } from "@/components/cards";
 import { ActionForm } from "@/components/forms";
-import { BackLink, ContactList, Facts, Tag } from "@/components/ui";
+import { PinIcon } from "@/components/icons";
+import { AsideCard, BackLink, ContactList, DetailLayout, Facts, Prose, Tag, VerifiedTag } from "@/components/ui";
 import { getCompany } from "@/lib/data";
 import { formLabels, inquiryFields } from "@/lib/fields";
 import { companyName, formatNumber, safeUrl } from "@/lib/format";
@@ -16,48 +18,64 @@ export default async function CompanyPage({ params }: IdParams) {
   const name = companyName(c, lang);
 
   return (
-    <>
-      <BackLink href={`/${lang}/directory`} t={t} />
-      <div className="mt-4 grid gap-8 lg:grid-cols-[1fr_360px]">
-        <article>
-          <div className="flex flex-wrap items-center gap-2">
-            <Tag tone="thread">{label(t.companyCategories, c.category)}</Tag>
-            {c.verified && <Tag tone="nile">✓ {t.common.verified}</Tag>}
+    <DetailLayout
+      back={<BackLink href={`/${lang}/directory`} t={t} />}
+      contactLabel={t.directory.inquire}
+      header={
+        <div className="flex items-start gap-5">
+          <Monogram name={name} size="lg" />
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <Tag tone="thread">{label(t.companyCategories, c.category)}</Tag>
+              {c.verified && <VerifiedTag t={t} />}
+            </div>
+            <h1 className="display mt-3 text-3xl md:text-4xl">{name}</h1>
+            <p className="mt-2 flex items-center gap-1.5 text-muted">
+              <PinIcon className="h-4 w-4 shrink-0" />
+              {label(t.cities, c.city)}
+            </p>
           </div>
-          <h1 className="mt-3 text-3xl font-bold">{name}</h1>
-          <p className="mt-1 text-muted">{label(t.cities, c.city)}</p>
-          {c.description && <p className="mt-5 whitespace-pre-line [unicode-bidi:plaintext] rtl:text-right">{c.description}</p>}
-          <Facts
-            rows={[
-              [t.directory.capabilities, c.capabilities],
-              [t.directory.employees, c.employees ? formatNumber(c.employees, lang) : null],
-              [t.directory.minOrder, c.min_order],
-              [t.directory.certifications, c.certifications],
-              [t.directory.exportMarkets, c.export_markets],
-              [
-                t.directory.openTo,
-                c.open_to?.length ? c.open_to.map((o) => label(t.openTo, o)).join(" · ") : null,
-              ],
-              [t.directory.contactName, c.contact_name],
-            ]}
-          />
-        </article>
-        <aside className="space-y-6">
-          <div className="rounded-xl border border-line bg-white p-5">
-            <h2 className="mb-3 font-semibold">{t.common.contact}</h2>
+        </div>
+      }
+      aside={
+        <>
+          <AsideCard title={t.common.contact}>
             <ContactList t={t} phone={c.phone} whatsapp={c.whatsapp} email={c.email} website={safeUrl(c.website)} />
-          </div>
-          <div className="rounded-xl border border-line bg-white p-5">
-            <h2 className="mb-4 font-semibold">{t.directory.inquire}</h2>
+          </AsideCard>
+          <AsideCard title={t.directory.inquire}>
             <ActionForm
               action={submitInquiry}
               fields={inquiryFields(t)}
               labels={formLabels(t, "inquiry")}
               hidden={{ kind: "company", target_id: c.id, target_label: c.name, locale: lang }}
             />
+          </AsideCard>
+        </>
+      }
+    >
+      {c.description && <Prose>{c.description}</Prose>}
+      {c.open_to?.length > 0 && (
+        <div className="mt-8">
+          <h2 className="text-xs font-medium text-muted">{t.directory.openTo}</h2>
+          <div className="mt-2.5 flex flex-wrap gap-2">
+            {c.open_to.map((o) => (
+              <span key={o} className="rounded-lg border border-line-strong bg-white px-3 py-1.5 text-sm font-medium">
+                {label(t.openTo, o)}
+              </span>
+            ))}
           </div>
-        </aside>
-      </div>
-    </>
+        </div>
+      )}
+      <Facts
+        rows={[
+          [t.directory.capabilities, c.capabilities],
+          [t.directory.employees, c.employees ? formatNumber(c.employees, lang) : null],
+          [t.directory.minOrder, c.min_order],
+          [t.directory.certifications, c.certifications],
+          [t.directory.exportMarkets, c.export_markets],
+          [t.directory.contactName, c.contact_name],
+        ]}
+      />
+    </DetailLayout>
   );
 }
